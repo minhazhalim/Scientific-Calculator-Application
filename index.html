@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Scientific Calculator Application</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" type="module"></script>
+</head>
+<body>
+    <div class="calculator-grid">
+        <div class="output">
+            <div class="previous-operand"></div>
+            <div class="current-operand"></div>
+        </div>
+        <div class="answer-sto">
+            <p id="answer-display">answer: empty</p>
+            <p>|</p>
+            <p id="sto-display">sto: empty</p>
+        </div>
+        <div class="span-two" id="toggler">
+            <input type="checkbox" class="toggle" id="check">
+            <label for="check"></label>
+        </div>
+        <button>%</button>
+        <button class="span-two">ac</button>
+        <button>delete</button>
+        <button>÷</button>
+        <button>x!</button>
+        <button>ln</button>
+        <button>log</button>
+        <button>1</button>
+        <button>2</button>
+        <button>3</button>
+        <button>&#215;</button>
+        <button>sin</button>
+        <button>cos</button>
+        <button>tan</button>
+        <button>4</button>
+        <button>5</button>
+        <button>6</button>
+        <button>+</button>
+        <button>1/x</button>
+        <button>&Sqrt;</button>
+        <button id="y-root-x">
+            <p>y</p>
+            <p>√</p>
+            <p>x</p>
+        </button>
+        <button>7</button>
+        <button>8</button>
+        <button>9</button>
+        <button>-</button>
+        <button>e</button>
+        <button id="x2">x<sup>2</sup></button>
+        <button>x<sup>y</sup></button>
+        <button>.</button>
+        <button>0</button>
+        <button class="span-two">=</button>
+        <button>&pi;</button>
+        <button>answer</button>
+        <button>sto</button>
+        <button>rcl</button>
+        <button>A</button>
+        <button>B</button>
+        <button>C</button>
+        <button id="record"><p>use</p>history</button>
+        <div title="History" id="history-ctr" class="span-three">
+            <p>history:</p>
+            <select name="history" id="history"><option value="empty" selected>empty</option></select>
+        </div>
+        <button>D</button>
+        <button>E</button>
+        <button>F</button>
+        <div id="conversion-ctr">
+            <select name="conversion-from" class="conversion">
+                <option value="decimal" selected>decimal</option>
+                <option value="binary">binary</option>
+                <option value="octal">octal</option>
+                <option value="hexadecimal">hexadecimal</option>
+            </select>
+            <select name="conversion-to" class="conversion">
+                <option value="decimal">decimal</option>
+                <option value="binary" selected>binary</option>
+                <option value="octal">octal</option>
+                <option value="hexadecimal">hexadecimal</option>
+            </select>
+            <button class="conversion">convert</button>
+        </div>
+        <div id="water-mark"><a href="https://github.com/minhazhalim" target="_blank">created by: minhaz halim zim</a></div>
+    </div>
+</body>
+</html>
