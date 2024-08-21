@@ -1,261 +1,512 @@
-const display = document.getElementById('display');
-const topDisplay = document.getElementById('topDisplay');
-const powerButton = document.getElementById('powerButton');
-const powerMinus1 = document.getElementById('power-1');
-const cubeRootButton = document.getElementById('cubeRootButton');
-const dot = document.getElementById('dot');
-const trigonometricMode = document.getElementById('trigonometric-mode');
-const trigonoToggle = document.getElementById('trigono-toggle');
-const exponential = document.getElementById('exponential');
-const answerButton = document.getElementById('answerButton');
-const squareButton = document.querySelector('#squareButton');
-const sqrtButton = document.querySelector('#sqrtButton');
-const percentButton = document.querySelector('#percentButton');
-const equalButton = document.querySelector('#equalButton');
-const ac = document.querySelector('#ac');
-const deleteButton = document.querySelector('#delete');
-const numberButton = document.querySelectorAll('.numberButton');
-const operationButton = document.querySelectorAll('.operationButton');
-const bracketButton = document.querySelectorAll('.bracketButton');
-const operators = ['+','-','*','/'];
-let calculation = [];
-let showOnScreen = [];
-let trigonoMode = 'degree';
-trigonometricMode.innerText = trigonoMode;
-function calculate(equationArray){
-     return eval(equationArray.join(""));
-}
-function updateScreen(){
-     topDisplay.innerText = showOnScreen.join("");
-}
-function clearExponential(){
-     exponential.innerText = "";
-     exponential.parentElement.classList.remove('active');
-}
-function trigonometricModeFunction(){
-     if(trigonoMode == 'radian') trigonoMode = 'degree';
-     else trigonoMode = 'radian';
-     trigonometricMode.innerText = trigonoMode;
-}
-trigonometricMode.addEventListener('click',trigonometricModeFunction);
-function trigo(operator,angle){
-     if(trigonoMode == 'degree' && operator.name[0] !== 'a'){
-          angle = angle * Math.PI / 100;
+const dataNumber = document.querySelectorAll('[data-number]');
+const dataUnaryOperation = document.querySelectorAll('[data-unary-operation]');
+const dataDirectValue = document.querySelectorAll('[data-direct-value]');
+const equation = document.getElementById('equation');
+const output = document.getElementById('output');
+const equalButton = document.getElementById('equal-button');
+const allClearButton = document.getElementById('all-clear-button');
+const backspaceButton = document.getElementById('backspace-button');
+const signToggleButton = document.getElementById('sign-toggle-button');
+const feButton = document.getElementById('fe-button');
+const degreeButton = document.getElementById('degree-button');
+const msButton = document.getElementById('ms-button');
+const mrButton = document.getElementById('mr-button');
+const mpButton = document.getElementById('mPlus-button');
+const mmButton = document.getElementById('mMinus-button');
+const mcButton = document.getElementById('mc-button');
+const powerCell = document.getElementById('power-cell');
+const trigonometryCellButton = document.getElementById('trigonometry-cell-button');
+const functionCellButton = document.getElementById('function-cell-button');
+trigonometryCellButton.onclick = () => {
+     if(document.getElementById('trigonometry-cell-content').style.display === 'block'){
+          document.getElementById('trigonometry-cell-content').style.display = 'none';
+     }else{
+          document.getElementById('trigonometry-cell-content').style.display = 'block';
      }
-     let result;
-     if(operator.name == 'sin' && angle == (Math.PI)){
-          result = 0;
-          return result;
-     }else if(operator.name == 'cos' && (angle == (Math.PI / 2) || angle == (3 * Math.PI / 2))){
-          result = 0;
-          return result;
-     }else if(operator.name = 'tan' && angle == (Math.PI / 2)){
-          result = 'Invalid Input';
-          return result;
+};
+functionCellButton.onclick = () => {
+     if(document.getElementById('function-cell-content').style.display === 'block'){
+          document.getElementById('function-cell-content').style.display = 'none';
+     }else{
+          document.getElementById('function-cell-content').style.display = 'block';
      }
-     result = operator(angle)
-     if(trigonoMode == 'degree' && operator.name[0] === '0'){
-          result = result * 180 / Math.PI;
-     }
-     return result;
-}
-function autoCloseBracket(){
-     let startParenthesis = 0;
-     let endParenthesis = 0;
-     for(element of calculation){
-          element = element.toString();
-          if(element.indexOf('(') != -1) startParenthesis++;
-          else if(element.indexOf(')') != -1) endParenthesis++;
-     }
-     for(let i = endParenthesis;i < startParenthesis;i++){
-          calculation.push(')');
+};
+function toggleClearAndReadButtons(){
+     if(localStorage.getItem('calculator-item') === null){
+          mcButton.style.opacity = '0.1';
+          mrButton.style.opacity = '0.1';
+          mcButton.style.pointerEvents = 'none';
+          mrButton.style.pointerEvents = 'none';
+     }else{
+          mcButton.style.opacity = '1';
+          mrButton.style.opacity = '1';
+          mcButton.style.pointerEvents = 'auto';
+          mrButton.style.pointerEvents = 'auto';
      }
 }
-function powerFunction(){
-     if(calculation.includes('power(')){
-          let powerStart;
-          let powerEnd;
-          let powerOf = [];
-          let power = ['('];
-          if(calculation[calculation.indexOf('power(') - 1] == ')'){
-               let bracketCount = 0;
-               for(let i = calculation.indexOf('power(') - 1;i >= 0;i--){
-                    powerStart = i;
-                    if(calculation[i] === '(') bracketCount++;
-                    if(calculation[i] === ')') bracketCount--;
-                    powerOf.unshift(calculation[i]);
-                    if(bracketCount === 0) break;
-               }
+class Calculator {
+     constructor(){
+          this.equation = 0;
+          this.isDecimalLegal = true;
+          this.feMode = false;
+          this.powerMode = false;
+          this.isOperatorLegal = true;
+          this.degreeMode = false;
+          this.lastComputed = 0;
+          equation.innerText = "";
+          output.innerText = this.equation;
+          toggleClearAndReadButtons();
+     }
+     getEquation(){
+          return this.equation;
+     }
+     getLastComputed(){
+          return this.lastComputed;
+     }
+     equationToExponential(){
+          if(this.lastComputed !== 0){
+               this.equation = this.lastComputed;
+          }
+          if(this.feMode){
+               this.equation = Number(this.equation).toFixed();
+               this.feMode = false;
           }else{
-               for(let i = calculation.indexOf('power(') - 1;i >= 0;i--){
-                    if(operators.includes(calculation[i])) break;
-                    powerStart = i;
-                    powerOf.unshift(calculation[i]);
+               this.equation = Number(this.equation).toExponential();
+               this.feMode = true;
+          }
+          output.innerText = this.equation;
+          this.lastComputed = this.equation;
+          this.equation = 0;
+     }
+     appendNumber(number){
+          if(this.equation === 0 && number === '0') return;
+          if((number === '+' || number === '-' || number === '*' || number === '/' || number === '%' || number === '**') && this.lastComputed !== 0){
+               this.equation = this.lastComputed;
+               this.lastComputed = 0;
+          }else{
+               this.lastComputed = 0;
+          }
+          if((number === '+' || number === '-' || number === '*' || number === '/' || number === '%' || number === '**') && this.isOperatorLegal === false) return;
+          if((number === '+' || number === '-' || number === '*' || number === '/' || number === '%' || number === '**') && this.isOperatorLegal){
+               this.isOperatorLegal = false;
+               this.isDecimalLegal = true;
+          }else{
+               this.isOperatorLegal = true;
+          }
+          if(number === '.'){
+               if(this.isDecimalLegal === false) return;
+               else this.isDecimalLegal = false;
+          }
+          if(number === ')' && ((this.equation.toString().split(')').length - 1) >= (this.equation.toString().split('(').length - 1))) return;
+          if(number === '(' && this.equation.toString().slice(-1) === ')'){
+               this.equation += '*';
+          }
+          if(this.equation === 0 && !(number === '+' || number === '-' || number === '*' || number === '/' || number === '%' || number === '**')){
+               this.equation = number;
+          }else{
+               this.equation += number;
+          }
+          equation.innerText = "";
+          output.innerText = this.equation;
+     }
+     compute(){
+          try{
+               let computation = eval(this.equation);
+               equation.innerText = `${this.equation} =`;
+               if(computation === Infinity && this.equation.toString().includes('/')){
+                    computation = 'Can Not Divide by Zero';
                }
-          }{
-               let bracketCount = 1;
-               for(let i = calculation.indexOf('power(') + 1;i <calculation.length;i++){
-                    if(calculation[i] == '(') bracketCount++;
-                    if(calculation[i] == ')') bracketCount--;
-                    power.push(calculation[i]);
-                    powerEnd = i;
-                    if(bracketCount == 0) break;
+               output.innerText = computation;
+               if(isNaN(computation)){
+                    this.lastComputed = 0;
+               }else{
+                    this.lastComputed = computation;
                }
-          }
-          let powered = Math.pow(calculate(powerOf),calculate(power));
-          calculation.splice(powerStart,powerEnd - powerStart + 1,powered);
-          powerFunction();
-     }
-}
-function acFunction(){
-     calculation = [];
-     showOnScreen = [];
-     display.value = 0;
-     updateScreen();
-     clearExponential();
-}
-window.addEventListener('load',acFunction);
-ac.addEventListener('click',acFunction);
-function numberButtonFunction(event){
-     calculation.push(event.target.innerText);
-     showOnScreen.push(event.target.innerText);
-     updateScreen();
-}
-numberButton.forEach(element => {
-     element.addEventListener('click',numberButtonFunction);
-});
-function removeAnswer(event){
-     calculation = [];
-     showOnScreen = [];
-     updateScreen();
-     numberButton.forEach(element => {
-          element.addEventListener('click',removeAnswer);
-     });
-     numberButtonFunction(event);
-}
-function operationButtonFunction(event){
-     calculation.push(event.target.dataset.buttonSymbol);
-     showOnScreen.push(event.target.innerText);
-     updateScreen();
-     numberButton.forEach(element => {
-          element.removeEventListener('click',removeAnswer);
-     });
-}
-operationButton.forEach(element => {
-     element.addEventListener('click',operationButtonFunction);
-});
-function bracketFunction(event){
-     let bracketCount = 0;
-     for(let value of calculation.join("")){
-          if(value == '(') bracketCount++;
-          if(value == ')') bracketCount--;
-     }
-     if(isNaN(parseFloat(showOnScreen[showOnScreen.length - 1])) == false && event.target.innerText == '(') calculation.push('*');
-     else if(event.target.innerText == ""){
-          if(bracketCount == 0) return;
-     }
-     calculation.push(event.target.innerText);
-     showOnScreen.push(event.target.innerText);
-     updateScreen();
-     numberButton.forEach(element => {
-          element.removeEventListener('click',removeAnswer);
-     });
-}
-bracketButton.forEach(element => {
-     element.addEventListener('click',bracketFunction);
-});
-function rootFunction(event,root){
-     !operators.includes(calculation.slice(-1)) ? calculation.push(`*${root}`) : calculation.push(root);
-     showOnScreen.push(event.target.dataset.buttonSymbol);
-     updateScreen();
-     numberButton.forEach(element => {{
-          element.removeEventListener('click',removeAnswer);
-     }});
-}
-sqrtButton.addEventListener('click',event => {
-     rootFunction(event,'Math.sqrt(');
-});
-cubeRootButton.addEventListener('click',event => {
-     rootFunction(event,'Math.cbrt(');
-});
-function equalFunction(){
-     clearExponential();
-     autoCloseBracket();
-     powerFunction();
-     let answer;
-     try {
-          answer = calculate(calculation).toString();
-          if(!answer.includes('e') && answer.includes('.') && answer.slice(0,-1).split('.')[1].endsWith('000000')){
-               answer = parseFloat(answer.slice(0,-1)).toString();
-          }
-     }catch(error){
-          if(error instanceof SyntaxError){
-               display.value = 'Syntax Error!';
-               return;
+               this.equation = 0;
+          }catch(error){
+               equation.innerText = `${this.equation} =`;
+               output.innerText = 'Invalid Expression';
+               this.equation = 0;
           }
      }
-     calculation = [answer];
-     showOnScreen = [answer];
-     localStorage.setItem('answer',answer);
-     if(answer.indexOf('e') != -1){
-          const newAnswer = answer.split('e');
-          exponential.innerText = newAnswer[1];
-          exponential.parentElement.classList.add('active');
-          answer = newAnswer[0];
+     signToggle(){
+          if(this.lastComputed !== 0){
+               this.equation = this.lastComputed;
+          }
+          let equationNumber = parseFloat(this.equation);
+          if(equationNumber > 0){
+               this.equation = Math.abs(equationNumber) * -1;
+          }else{
+               this.equation = Math.abs(equationNumber);
+          }
+          output.innerText = this.equation;
+          this.lastComputed = this.equation;
      }
-     display.value = answer;
-     numberButton.forEach(element => {
-          element.addEventListener('click',removeAnswer);
-     });
+     unaryOperation(operation){
+          if(this.lastComputed !== 0){
+               this.equation = this.lastComputed;
+          }
+          if(this.equation === "") return;
+          let computation;
+          const current = parseFloat(this.equation);
+          if(isNaN(current)) return;
+          switch(operation){
+               case 'sin':
+                    if(this.degreeMode){
+                         computation = Math.sin(current * Math.PI / 180);
+                    }else{
+                         computation = Math.sin(current);
+                    }
+                    break;
+               case 'cos':
+                    if(this.degreeMode){
+                         computation = Math.cos(current * Math.PI / 180);
+                    }else{
+                         computation = Math.cos(current);
+                    }
+                    break;
+               case 'tan':
+                    if(this.degreeMode){
+                         computation = Math.tan(current * Math.PI / 180);
+                    }else{
+                         computation = Math.tan(current);
+                    }
+                    break;
+               case 'hyp':
+                    computation = Math.hypot(current);
+                    break;
+               case 'sec':
+                    if(this.degreeMode){
+                         computation = 1 / Math.cos(current * Math.PI / 180);
+                    }else{
+                         computation = 1 / Math.cos(current);
+                    }
+                    break;
+               case 'csc':
+                    if(this.degreeMode){
+                         computation = 1 / Math.sin(current * Math.PI / 180);
+                    }else{
+                         computation = 1 / Math.sin(current);
+                    }
+                    break;
+               case 'cot':
+                    if(this.degreeMode){
+                         computation = 1 / Math.tan(current * Math.PI / 180);
+                    }else{
+                         computation = 1 / Math.tan(current);
+                    }
+                    break;
+               case 'ceil':
+                    computation = Math.ceil(current);
+                    break;
+               case 'floor':
+                    computation = Math.floor(current);
+                    break;
+               case 'abs':
+                    computation = Math.abs(current);
+                    break;
+               case 'ln':
+                    if(current !== 0){
+                         computation = Math.log(current);
+                    }else{
+                         computation = 'Invalid Input';
+                    }
+                    break;
+               case 'log':
+                    if(current !== 0){
+                         computation = Math.log10(current);
+                    }else{
+                         computation = 'Invalid Input';
+                    }
+                    break;
+               case '10^':
+                    computation = Math.pow(10,current);
+                    break;
+               case 'sqrt':
+                    computation = Math.sqrt(current);
+                    break;
+               case 'cuberoot':
+                    computation = Math.cbrt(current);
+                    break;
+               case 'sqr':
+                    computation = Math.pow(current,2);
+                    break;
+               case '1/':
+                    if(current !== 0){
+                         computation = 1 / current;
+                    }else{
+                         computation = 'Can Not Divided by Zero';
+                    }
+                    break;
+               case 'exp':
+                    computation = current.toExponential();
+                    break;
+               case 'cube':
+                    computation = Math.pow(current,3);
+                    break;
+               case '2^':
+                    computation = Math.pow(2,current);
+                    break;
+               case 'e^':
+                    computation = Math.pow(Math.E,current);
+                    break;
+               case '!':
+                    if(current >= 0){
+                         let factorial = (number) => {
+                              let temperature = 1;
+                              for(let i = 2;i <= number;i++){
+                                   temperature = temperature * i;
+                              }
+                              return temperature;
+                         }
+                         computation = factorial(current);
+                    }else{
+                         computation = 'Invalid Input';
+                    }
+                    break;
+               default:
+                    return;
+          }
+          equation.innerText = `${operation}(${this.equation}) =`;
+          output.innerText = computation;
+          if(isNaN(computation)){
+               this.lastComputed = 0;
+               this.equation = 0;
+          }else{
+               this.lastComputed = computation;
+               this.equation = 0;
+          }
+     }
+     printDirectValue(value){
+          let computation;
+          switch(value){
+               case 'pi':
+                    computation = Math.PI;
+                    break;
+               case 'e':
+                    computation = Math.E;
+                    break;
+               case 'radian':
+                    computation = Math.random();
+                    break;
+          }
+          this.equation = computation;
+          equation.innerText = "";
+          output.innerText = this.equation;
+          this.lastComputed = computation;
+          this.equation = 0;
+     }
+     clear(){
+          this.equation = 0;
+          this.isDecimalLegal = true;
+          this.isOperatorLegal = true;
+          this.lastComputed = 0;
+          equation.innerText = "";
+          output.innerText = this.equation;
+     }
+     backspace(){
+          this.equation = this.equation.toString().slice(0,-1);
+          if(this.equation === ""){
+               this.equation = 0;
+          }
+          this.isDecimalLegal = true;
+          this.isOperatorLegal = true;
+          output.textContent = this.equation;
+     }
 }
-equalButton.addEventListener('click',equalFunction);
-document.getElementById('visibility-toggler').addEventListener('click',() => {
-     document.querySelectorAll('.toggle-visibility').forEach(element => {
-          element.classList.toggle('visible');
-     });
-});
-document.querySelectorAll('.button').forEach(button => {
+const calculator = new Calculator();
+dataNumber.forEach(button => {
+     if(calculator.feMode){
+          calculator.feMode = false;
+          feButton.style.borderBottom = 'none';
+     }
      button.addEventListener('click',() => {
-          button.classList.add('click-animation');
-          button.addEventListener('animationend',() => button.classList.remove('click-animation'),{once: true});
+          calculator.appendNumber(button.getAttribute('data-number'));
      });
 });
-document.addEventListener('keydown',event => {
-     let targetElement = event.key === 'Enter' ?
-          equalButton : event.key === 'Backspace' ?
-          ac: event.key === 'Delete' ?
-          deleteButton : !isNaN(event.key) ?
-          [...numberButton].find(element => element.innerText === event.key) :
-          [...operationButton].find(element => element.dataset.buttonSymbol === event.key);
-     targetElement && event.preventDefault();
-     targetElement && targetElement.click();
+equalButton.onclick = () => {
+     calculator.compute();
+}
+allClearButton.onclick = () => {
+     calculator.clear();
+}
+backspaceButton.onclick = () => {
+     calculator.backspace();
+}
+signToggleButton.onclick = () => {
+     calculator.signToggle();
+}
+dataUnaryOperation.forEach(button => {
+     if(calculator.feMode){
+          calculator.feMode = false;
+          feButton.style.borderBottom = 'none';
+     }
+     button.addEventListener('click',() => {
+          calculator.unaryOperation(button.getAttribute('data-unary-operation'));
+     });
 });
-trigonoToggle.addEventListener('click',() => {
-     document.getElementById('trigonometric-container').classList.toggle('visible');
+dataDirectValue.forEach(button => {
+     if(calculator.feMode){
+          calculator.feMode = false;
+          feButton.style.borderBottom = 'none';
+     }
+     button.addEventListener('click',() => {
+          calculator.printDirectValue(button.getAttribute('data-direct-value'));
+     });
 });
-deleteButton.addEventListener('click',() => {
-     calculation.pop();
-     showOnScreen.pop();
-     updateScreen();
-});
-answerButton.addEventListener('click',() => {
-     let answer = localStorage.getItem('answer');
-     calculation.push(answer);
-     showOnScreen.push('ANSWER');
-     updateScreen();
-});
-powerButton.addEventListener('click',event => {
-     calculation.push('power(');
-     showOnScreen.push(event.target.dataset.buttonSymbol);
-     updateScreen();
-});
-powerMinus1.addEventListener('click',event => {
-     calculation.push('power(','-1',')');
-     showOnScreen.push('^(','-1',')');
-     updateScreen();
-});
-squareButton.addEventListener('click',event => {
-     calculation.push('power(','2',')');
-     showOnScreen.push('^(','2',')');
-     updateScreen();
+feButton.onclick = () => {
+     calculator.equationToExponential();
+     if(calculator.feMode){
+          feButton.style.borderBottom = '2px solid var(--primaryColor)';
+     }else{
+          feButton.style.borderBottom = 'none';
+     }
+}
+degreeButton.onclick = () => {
+     if(calculator.degreeMode){
+          degreeButton.innerText = 'radian';
+          calculator.degreeMode = false;
+     }else{
+          degreeButton.innerText = 'degree';
+          calculator.degreeMode = true;
+     }
+}
+function turnOnPowerMode(){
+     if(calculator.powerMode){
+          document.getElementById('sqrtOrCube').setAttribute('data-unary-operation','sqr');
+          document.getElementById('sqrtOrCube').innerHTML = 'x<sup>2</sup>';
+          document.getElementById('sqrtOrCubeRoot').setAttribute('data-unary-operation','sqrt');
+          document.getElementById('sqrtOrCubeRoot').innerHTML = '&#8730';
+          document.getElementById('10RaiseXOr2RaiseX').setAttribute('data-unary-operation','10^');
+          document.getElementById('10RaiseXOr2RaiseX').innerHTML = '10<sup>x</sup>';
+          document.getElementById('logOrERaiseX').setAttribute('data-unary-operation','log');
+          document.getElementById('logOrERaiseX').innerHTML = 'log';
+          calculator.powerMode = false;
+     }else{
+          document.getElementById('sqrtOrCube').setAttribute('data-unary-operation','cube');
+          document.getElementById('sqrtOrCube').innerHTML = 'x<sup>3</sup>';
+          document.getElementById('sqrtOrCubeRoot').setAttribute('data-unary-operation','cuberoot');
+          document.getElementById('sqrtOrCubeRoot').innerHTML = '&#8731';
+          document.getElementById('sqrtOrCubeRoot').style.padding = '0.5rem';
+          document.getElementById('10RaiseXOr2RaiseX').setAttribute('data-unary-operation','2^');
+          document.getElementById('10RaiseXOr2RaiseX').innerHTML = '2<sup>x</sup>';
+          document.getElementById('logOrERaiseX').setAttribute('data-unary-operation','e^');
+          document.getElementById('logOrERaiseX').innerHTML = 'e<sup>x</sup>';
+          document.getElementById('logOrERaiseX').style.padding = '0.5rem';
+          calculator.powerMode = true;
+     }
+}
+powerCell.onclick = () => {
+     turnOnPowerMode();
+     if(calculator.powerMode){
+          powerCell.style.backgroundColor = 'var(--primaryColor)';
+          powerCell.style.color = 'var(--cardBackgroundColor)';
+     }else{
+          powerCell.style.backgroundColor = 'var(--cardSecondaryBackgroundColor)';
+          powerCell.style.color = 'var(--textColor)';
+     }
+}
+msButton.onclick = () => {
+     if(calculator.getEquation() !== "" && !(isNaN(calculator.getEquation()))){
+          if(calculator.getEquation() === 0){
+               localStorage.setItem('calculator-item',calculator.getLastComputed());
+          }else{
+               localStorage.setItem('calculator-item',calculator.getEquation());
+          }
+          toggleClearAndReadButtons();
+     }
+}
+mrButton.onclick = () => {
+     if(localStorage.getItem('calculator-item') !== null){
+          if(!(calculator.getEquation().toString().includes('+') ||
+               calculator.getEquation().toString().includes('-') ||
+               calculator.getEquation().toString().includes('*') ||
+               calculator.getEquation().toString().includes('/') ||
+               calculator.getEquation().toString().includes('%') ||
+               calculator.getEquation().toString().includes('**'))
+          ) calculator.clear();
+          calculator.appendNumber(localStorage.getItem('calculator-item'));
+     }
+}
+mpButton.onclick = () => {
+     let current;
+     if(calculator.getEquation() !== ""){
+          if(calculator.getEquation() === 0){
+               current = parseFloat(calculator.getLastComputed());
+          }else{
+               current = parseFloat(calculator.getEquation());
+          }
+     }
+     if(localStorage.getItem('calculator-item') !== null){
+          let memoryValue = Number(localStorage.getItem('calculator-item'));
+          localStorage.setItem('calculator-item',memoryValue + current);
+     }else{
+          localStorage.setItem('calculator-item',current);
+          toggleClearAndReadButtons();
+     }
+}
+mmButton.onclick = () => {
+     let current;
+     if(calculator.getEquation() !== ""){
+          if(calculator.getEquation() === 0){
+               current = parseFloat(calculator.getLastComputed());
+          }else{
+               current = parseFloat(calculator.getEquation());
+          }
+     }
+     if(localStorage.getItem('calculator-item') !== null){
+          let memoryValue = Number(localStorage.getItem('calculator-item'));
+          localStorage.setItem('calculator-item',memoryValue - current);
+     }else{
+          localStorage.setItem('calculator-item',current);
+          toggleClearAndReadButtons();
+     }
+}
+mcButton.onclick = () => {
+     if(localStorage.getItem('calculator-item')){
+          localStorage.removeItem('calculator-item');
+          toggleClearAndReadButtons();
+     }
+}
+window.onclick = function(event){
+     if(!event.target.matches('.function-cell-button')){
+          let dropdowns = document.getElementsByClassName('function-cell-content');
+          for(let i = 0;i < dropdowns.length;i++){
+               let openDropdown = dropdowns[i];
+               if(openDropdown.style.display === 'block'){
+                    openDropdown.style.display = 'none';
+               }
+          }
+     }
+     if(!event.target.matches('.trigonometry-cell-button')){
+          let dropdowns = document.getElementsByClassName('trigonometry-cell-content');
+          for(let i = 0;i < dropdowns.length;i++){
+               let openDropdown = dropdowns[i];
+               if(openDropdown.style.display === 'block'){
+                    openDropdown.style.display = 'none';
+               }
+          }
+     }
+     if(!event.target.matches('.power-cell-button')){
+          let dropdowns = document.getElementsByClassName('power-cell-content');
+          for(let i = 0;i < dropdowns.length;i++){
+               let openDropdown = dropdowns[i];
+               if(openDropdown.style.display === 'block'){
+                    openDropdown.style.display = 'none';
+               }
+          }
+     }
+}
+window.addEventListener('keydown',(event) => {
+     if(calculator.feMode){
+          calculator.feMode = false;
+          feButton.style.borderBottom = 'none';
+     }
+     if((event.key >= 0 && event.key <= 9) || (event.key === '+' || event.key === '-' || event.key === '*' || event.key === '/' || event.key === '%' || event.key === '.' || event.key === '(' || event.key === ')')){
+          calculator.appendNumber(event.key);
+     }
+     if(event.key === '^') calculator.appendNumber('**');
+     if(event.key === 'Enter') calculator.compute();
+     if(event.key === 'Backspace') calculator.backspace();
+     if(event.key === 'Escape') calculator.clear();
 });

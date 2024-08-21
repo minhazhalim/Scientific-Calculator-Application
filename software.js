@@ -1,330 +1,542 @@
-const result = document.getElementById('result');
-const operation = document.getElementById('operation');
-const toggleRadian = document.getElementById('toggleRadian');
-const toggleSecond = document.getElementById('toggleSecond');
-const button = document.querySelectorAll('button');
-let data = {formats: [],operations: [],result: 0,resultFormat: [],staging: [],};
-function clearData(){
-     data.staging = [];
-     data.result = 0;
-     data.operations = [];
-     data.formats = [];
-     data.resultFormat = [];
-     operation.value = data.formats.join("");
-     result.value = data.staging.join("");
+const input = document.querySelector('.input');
+const outputOperation = document.querySelector('.operation .value');
+const outputResult = document.querySelector('.result .value');
+const scientific = document.querySelector('.scientific');
+const normal = document.querySelector('.normal');
+const OPERATIONS = ['+','-','*','/'];
+const POWER = 'POWER(';
+const FACTORIAL = 'FACTORIAL(';
+const CUBE = 'CUBE(';
+let SCIENTIFIC_MODE = true;
+let RADIAN = true;
+let answer = 0;
+let data = {operation: [],formula: [],};
+let calculator_buttons = [
+	{
+		name: 'radian',
+		symbol: 'Radian',
+		formula: false,
+		type: 'key',
+	},
+	{
+		name: 'degree',
+		symbol: 'Degree',
+		formula: false,
+		type: 'key',
+	},
+	{
+		name: 'cube',
+		symbol: 'x³',
+		formula: POWER,
+		type: 'math_function',
+	},
+	{
+		name: 'cube-root',
+		symbol: '∛',
+		formula: 'Math.cbrt',
+		type: 'math_function',
+	},
+	{
+		name: 'x-inverse',
+		symbol: 'x⁻¹',
+		formula: POWER,
+		type: 'math_function',
+	},
+	{
+		name: 'quad',
+		symbol: 'x⁴',
+		formula: POWER,
+		type: 'math_function',
+	},
+	{
+		name: 'factorial',
+		symbol: '×!',
+		formula: FACTORIAL,
+		type: 'math_function',
+	},
+	{
+		name: 'square-root',
+		symbol: '√',
+		formula: 'Math.sqrt',
+		type: 'math_function',
+	},
+	{
+		name: 'pi',
+		symbol: 'π',
+		formula: 'Math.PI',
+		type: 'number',
+	},
+	{
+		name: 'cos',
+		symbol: 'cos',
+		formula: 'trigo(Math.cos,',
+		type: 'trigo_function',
+	},
+	{
+		name: 'sin',
+		symbol: 'sin',
+		formula: 'trigo(Math.sin,',
+		type: 'trigo_function',
+	},
+	{
+		name: 'tan',
+		symbol: 'tan',
+		formula: 'trigo(Math.tan,',
+		type: 'trigo_function',
+	},
+	{
+		name: 'square',
+		symbol: 'x²',
+		formula: POWER,
+		type: 'math_function',
+	},
+	{
+		name: 'log',
+		symbol: 'log',
+		formula: 'Math.log10',
+		type: 'math_function',
+	},
+	{
+		name: 'ln',
+		symbol: 'ln',
+		formula: 'Math.log',
+		type: 'math_function',
+	},
+	{
+		name: 'acos',
+		symbol: 'acos',
+		formula: 'inv_trigo(Math.acos,',
+		type: 'trigo_function',
+	},
+	{
+		name: 'asin',
+		symbol: 'asin',
+		formula: 'inv_trigo(Math.asin,',
+		type: 'trigo_function',
+	},
+	{
+		name: 'atan',
+		symbol: 'atan',
+		formula: 'inv_trigo(Math.atan,',
+		type: 'trigo_function',
+	},
+	{
+		name: 'power',
+		symbol: 'x<span>y</span>',
+		formula: POWER,
+		type: 'math_function',
+	},
+	{
+		name: 'e',
+		symbol: 'e',
+		formula: 'Math.E',
+		type: 'number',
+	},
+	{
+		name: 'open-parenthesis',
+		symbol: '(',
+		formula: '(',
+		type: 'number',
+	},
+	{
+		name: 'close-parenthesis',
+		symbol: ')',
+		formula: ')',
+		type: 'number',
+	},
+	{
+		name: 'exp',
+		symbol: 'exp',
+		formula: 'Math.exp',
+		type: 'math_function',
+	},
+	{
+		name: 'ANS',
+		symbol: 'ANS',
+		formula: 'ans',
+		type: 'number',
+	},
+	{
+		name: '7',
+		symbol: 7,
+		formula: 7,
+		type: 'number',
+	},
+	{
+		name: '8',
+		symbol: 8,
+		formula: 8,
+		type: 'number',
+	},
+	{
+		name: '9',
+		symbol: 9,
+		formula: 9,
+		type: 'number',
+	},
+	{
+		name: 'delete',
+		symbol: '⌫',
+		formula: false,
+		type: 'key',
+	},
+	{
+		name: 'clear',
+		symbol: 'C',
+		formula: false,
+		type: 'key',
+	},
+	{
+		name: '4',
+		symbol: 4,
+		formula: 4,
+		type: 'number',
+	},
+	{
+		name: '5',
+		symbol: 5,
+		formula: 5,
+		type: 'number',
+	},
+	{
+		name: '6',
+		symbol: 6,
+		formula: 6,
+		type: 'number',
+	},
+	{
+		name: 'multiplication',
+		symbol: '×',
+		formula: '*',
+		type: 'operator',
+	},
+	{
+		name: 'division',
+		symbol: '÷',
+		formula: '/',
+		type: 'operator',
+	},
+	{
+		name: '1',
+		symbol: 1,
+		formula: 1,
+		type: 'number',
+	},
+	{
+		name: '2',
+		symbol: 2,
+		formula: 2,
+		type: 'number',
+	},
+	{
+		name: '3',
+		symbol: 3,
+		formula: 3,
+		type: 'number',
+	},
+	{
+		name: 'addition',
+		symbol: '+',
+		formula: '+',
+		type: 'operator',
+	},
+	{
+		name: 'subtraction',
+		symbol: '–',
+		formula: '-',
+		type: 'operator',
+	},
+	{
+		name: '0',
+		symbol: 0,
+		formula: 0,
+		type: 'number',
+	},
+	{
+		name: 'comma',
+		symbol: '.',
+		formula: '.',
+		type: 'number',
+	},
+	{
+		name: 'percent',
+		symbol: '%',
+		formula: '/100',
+		type: 'number',
+	},
+	{
+		name: 'calculate',
+		symbol: '=',
+		formula: '=',
+		type: 'calculate',
+	},
+];
+function updateOutputOperation(operation){
+     outputOperation.innerHTML = operation;
 }
-function toggleRadianDegree(){
-     if(toggleRadian.innerText === 'radian'){
-          toggleRadian.innerText = 'degree',
-          toggleRadian.value = 'degree'
-     }else{
-          toggleRadian.innerText = 'radian',
-          toggleRadian.value = 'radian'
+function updateOutputResult(result){
+     outputResult.innerHTML = result;
+}
+function search(formula,keyword){
+     let searchResult = [];
+     formula.forEach((item,index) => {
+          if(item == keyword) searchResult.push(index);
+     });
+     return searchResult;
+}
+function showPowerOnUi(data,formula,powerNumber){
+     data.operation.push('^(');
+     data.formula.push(formula);
+     data.operation.push(powerNumber);
+     data.formula.push(powerNumber);
+}
+function trigo(callback,angle){
+     if(!RADIAN) angle = (angle * Math.PI) / 100;
+     return callback(angle);
+}
+function inv_trigo(callback,value){
+     if(callback.name != 'atan'){
+          if(value < -1 || value > 1){
+               alert('Please Enter a Number in the Randge Between -1 to 1 of acos');
+               return NaN;
+          }
      }
+     let angle = callback(value);
+     if(!RADIAN) angle = (angle * 180) / Math.PI;
+     return angle;
 }
-function toggleSecondDegree(){
-     const button0 = [
-          {if: 'trigonometric-sin',newFunction: 'sec',newText: 'sec'},
-          {if: 'trigonometric-cos',newFunction: 'cosec',newText: 'cosec'},
-          {if: 'trigonometric-tan',newFunction: 'cot',newText: 'cot'},
+function gamma(number){
+     var g = 7;
+     var p = [
+          0.99999999999980993,676.5203681218851,-1259.1392167224028,
+		771.32342877765313,-176.61502916214059,12.507343278686905,
+		-0.13857109526572012,9.9843695780195716e-6,1.5056327351493116e-7,
      ];
-     const button1 = [
-          {if: 'trigonometric-sin',newFunction: 'sin',newText: 'sin'},
-          {if: 'trigonometric-cos',newFunction: 'cos',newText: 'cos'},
-          {if: 'trigonometric-tan',newFunction: 'tan',newText: 'tan'},
-     ];
-     if(toggleSecond.value === '0'){
-          button0.forEach(buttonObject => {
-               const element = document.createElement(buttonObject.id);
-               element.setAttribute('onclick',`trigonometric('${buttonObject.newFunction}')`);
-               element.innerText = buttonObject.newText;
-          });
-          toggleSecond.value = '1';
-     }else{
-          button1.forEach(buttonObject => {
-               const element = document.createElement(buttonObject.id);
-               element.setAttribute('onclick',`trigonometric('${buttonObject.newFunction}')`);
-               element.innerText = buttonObject.newText;
-          });
-          toggleSecond.value = '0';
-     }
-}
-function number(value){
-     if(/(active)/.test(data.resultFormat[data.resultFormat.length - 1])) data.formats.pop();
-     data.staging.push(value);
-     result.value = data.staging.join("");
-}
-function factorialCalculation(value){
-     if(value < 0) return 'Invalid Input';
-     else if(value == 0) return 1;
-     else return value * factorialCalculation(value - 1);
-}
-function constant(operationType) {
-     const operations = {
-          π: () => Math.PI,
-          e: () => Math.E,
-     };
-     data.result = operations[operationType]();
-     data.formats.push(operationType);
-     data.resultFormat = [];
-     data.resultFormat.push('active');
-     operation.value = data.formats.join("");
-     result.value = data.result;
-     operation.value = data.formats.join("");
-     data.staging = [];
-}
-function percentage(){
-     if(data.staging.length !== 0){
-          percent = data.staging.join("") * 0.01;
-          data.staging = [];
-          data.result = percent;
-          result.value = data.result;
-     }else if(data.result.length !== 0){
-          percent = data.result * 0.01;
-          data.result = percent;
-          result.value = data.result;
-     }
-}
-function balanceParentheses(value){
-     data_temporary = [...value];
-     if(!Array.isArray(data_temporary)) return;
-     if(data_temporary.length !== 0){
-          let jumlah_open = data_temporary.filter(function (item){
-               return item === '(';
-          }).length;
-          let jumlah_close = data_temporary.filter(function (item){
-               return item === ')';
-          }).length;
-          let jumlah = jumlah_open - jumlah_close;
-          if(isNaN(parseFloat(data_temporary.length - 1)) && !data_temporary[data_temporary.length - 1].includes(')')){
-               data_temporary.push(1);
-               for(let i = 0;i <= jumlah - 1;i++){
-                    data_temporary.push(')');
-               }
-          }else{
-               for(let i = 0;i <= jumlah - 1;i++){
-                    data_temporary.push(')');
-               }
+     if(number < 0.5) return Math.PI / Math.sin(number * Math.PI) / gamma(1 - number);
+     else {
+          number--;
+          var x = p[0];
+          for(var i = 1;i < g + 2;i++){
+               x += p[i] / (number + i);
           }
+          var t = number + g + 0.5;
+          return Math.sqrt(2 * Math.PI) * Math.pow(t,number + 0.5) * Math.exp(-t) * x;
      }
-     return data_temporary;
 }
-function operator(value,format){
-     if(data.staging.length !== 0 && isNaN(parseFloat(data.operations[data.operations.length - 1]))){
-          if(data.formats.length === 0 || (data.formats.length > 0 && !data.formats[data.formats.length - 1].includes(')'))){
-               data.operations.push(data.staging.join(""));
-               data.formats.push(data.staging.join(""));
-               data.staging = [];
-               formula_string = balanceParentheses(data.operations);
-               data.result = eval(formula_string.join(""));
-               operation.value = data.formats.join("");
-               result.value = data.result;
+function factorial(number){
+     if(number % 1 != 0) return gamma(number + 1);
+     if(number === 0 || number === 1) return 1;
+     let result = 1;
+     for(let i = number;i > 0;i--){
+          result = result * i;
+          if(result === Infinity) return Infinity;
+     }
+     return result;
+}
+function createCalculatorButtons(){
+     let buttonPerRow = 6;
+     let addedButtons = 0;
+     calculator_buttons.forEach((button) => {
+          if(button.name == 'ANS'){
+               buttonPerRow = 5;
+               addedButtons++;
+               const lastRow = document.querySelector('.row:last-child');
+               lastRow.style.marginBottom = '16px';
+               const allRow = document.querySelectorAll('.row');
+               allRow.forEach((row) => {
+                    row.classList.add('advance-keys');
+               });
           }
-     }else{
-          if(data.operations.length > 0 &&
-               data.resultFormat.length === 0 &&
-               isNaN(parseFloat(data.operations[data.operations.length - 1])) &&
-               data.operations[data.operations.length - 1] !== '(' &&
-               data.operations[data.operations.length - 1] !== ')'){
-               data.operations.pop();
-               data.formats.pop();
-          }else{
-               if(data.staging.length !== 0 && data.operations[data.operations.length - 1] !== ')'){
-                    data.operations.push(data.staging.join(""));
-                    data.formats.push(data.staging.join(""));
-                    data.result = parseFloat(data.staging.join(""));
-                    data.staging = [];
-               }else if(data.operations[data.operations.length - 1] !== ')'){
-                    data.operations = data.operations.concat(data.result);
-                    if(data.resultFormat.length === 0){
-                         data.formats = data.formats.concat(data.result);
-                         result.value = data.result;
-                    }else data.resultFormat = [];
-               }
+          if(addedButtons % buttonPerRow == 0){
+               input.innerHTML += '<div class="row"></div>';
           }
-     }
-     data.resultFormat = [];
-     data.operations.push(value);
-     data.formats.push(format);
-     operation.value = data.formats.join("");
+          const row = document.querySelector('.row:last-child');
+          row.innerHTML += `<button id="${button.name}">${button.symbol}</button>`;
+          addedButtons++;
+     });
 }
-function math_function(operationType){
-     const operations = {
-          log: (x) => Math.log10(x),
-          ln: (x) => Math.log(x),
-          factorial: (x) => factorialCalculation(x),
-          sqrt: (x) => Math.sqrt(x),
-     };
-     const formatMap = {
-          log: (i) => `log(${i})`,
-          ln: (i) => `ln(${i})`,
-          factorial: (i) => `factorial(${i})`,
-          sqrt: (i) => `√(${i})`,
-     };
-     if(data.staging.length !== 0){
-          i = data.staging.join("");
-          data.result = operations[operationType](i);
-          data.formats.push(formatMap[operationType](i));
-          data.resultFormat = [];
-          data.resultFormat.push('active');
-          result.value = data.result;
-          operation.value = data.formats.join('');
-          data.staging = [];
-     }else if(data.result !== 0 || data.result === 0){
-          i = data.result;
-          data.result = operations[operationType](i);
-          if(data.formats.length > 0 && /(active)/.test(data.resultFormat.length - 1)){
-               j = data.formats[data.formats.length - 1];
-               data.formats.pop();
-               data.formats.push(formatMap[operationType](j));
-          }else data.formats.push(formatMap[operationType](i));
-          data.resultFormat = [];
-          data.resultFormat.push('active');
-          result.value = data.result;
-          operation.value = data.formats.join('');
-     }
-}
-function trigonometric(value){
-     const operations = {
-          sin: (x) => Math.sin(x),
-          cos: (x) => Math.cos(x),
-          tan: (x) => Math.tan(x),
-          sec: (x) => 1 / Math.cos(x),
-          cosec: (x) => 1 / Math.sin(x),
-          cot: (x) => 1 / Math.tan(x),
-     };
-     const formats = {
-          sin: (i,unit) => unit === 'degree' ? `sin₀(${i})` : `sinᵣ(${i})`,
-          cos: (i,unit) => unit === 'degree' ? `cos₀(${i})` : `cosᵣ(${i})`,
-          tan: (i,unit) => unit === 'degree' ? `tan₀(${i})` : `tanᵣ(${i})`,
-          sec: (i,unit) => unit === 'degree' ? `sec₀(${i})` : `secᵣ(${i})`,
-          cosec: (i,unit) => unit === 'degree' ? `cosec₀(${i})` : `cosecᵣ(${i})`,
-          cot: (i,unit) => unit === 'degree' ? `cot₀(${i})` : `cotᵣ(${i})`,
-     };
-     if(data.staging.length !== 0){
-        let angleInRadians = toggleRadian.value === 'degree' ? data.staging.join('') * (Math.PI / 180) : data.staging.join('');
-          data.result = operations[value](angleInRadians);
-          data.formats.push(formats[value](data.staging.join(''),toggleRadian.value));
-          data.resultFormat = [];
-          data.resultFormat.push('active');
-          result.value = data.result;
-          operation.value = data.formats.join("");
-          data.staging = [];
-     }else if(data.result !== 0 || data.result === 0){
-          let i = data.result;
-          let angleInRadians = toggleRadian.value === 'degree' ? data.result * (Math.PI / 180) : data.result;
-          data.result = operations[value](angleInRadians);
-          if(data.formats.length > 0 && /(active)/.test(data.resultFormat[data.resultFormat.length - 1])){
-               let j = data.formats[data.formats.length - 1];
-               data.formats.pop();
-               data.formats.push(formats[value](j,toggleRadian.value));
-          }else data.formats.push(formats[value](i,toggleRadian.value));
-          data.resultFormat = [];
-          data.resultFormat.push('active');
-          result.value = data.result;
-          operation.value = data.formats.join("");
-     }
-}
-function calculate(){
-     if(data.operations[data.operations.length - 1] !== ')'){
-          if(data.staging.length !== 0){
-               data.operations = data.operations.concat(data.staging);
-               data.formats = data.formats.concat(data.staging);
-          }else{
-               data.operations = data.operations.concat(data.result);
-               if(data.resultFormat.length == 0){
-                    data.formats = data.formats.concat(data.result);
-               }else data.resultFormat = [];
+createCalculatorButtons();
+function powerBaseGetter(formula,powerIndexes){
+     let powerBases = [];
+     powerIndexes.forEach((powerIndex) => {
+          let base = [];
+          let previousIndex = powerIndex - 1;
+          let parenthesisCount = 0;
+          while(previousIndex >= 0){
+               if(formula[previousIndex] == '(') parenthesisCount--;
+               if(formula[previousIndex] == ')') parenthesisCount++;
+               let isOperator = false;
+               OPERATIONS.forEach((operator) => {
+                    if(formula[previousIndex] == operator) isOperator = true;
+               });
+               let isPower = formula[previousIndex] == POWER;
+               if((isOperator && parenthesisCount == 0) || isPower) break;
+               base.unshift(formula[previousIndex]);
+               previousIndex--;
           }
-     }
-     data.staging = [];
-     formula_string = balanceParentheses(data.operations);
-     try {
-          data.result = eval(formula_string.join(""));
-          data.operations.push('=');
-          data.formats.push('=');
-          operation.value = data.formats.join("");
-          result.value = data.result;
-          data.operations = [];
-          data.formats = [];
-     }catch(error){
-          if(error instanceof SyntaxError){
-               result.value = 'Syntax Error!';
+          powerBases.push(base.join(""));
+     });
+     return powerBases;
+}
+function factorialNumberGetter(formula,factorialIndexes){
+     let factorialNumbers = [];
+     let factorialSequence = 0;
+     factorialIndexes.forEach((factorialIndex) => {
+          let number = [];
+          let nextIndex = factorialIndex + 1;
+          let nextInput = formula[nextIndex];
+          if(nextInput == FACTORIAL){
+               factorialSequence++;
                return;
           }
-     }
-}
-function parenthesesOpen(){
-     if(data.staging.length !== 0 && isNaN(parseFloat(data.operations[data.operations.length - 1]))){
-          data.operations.push(data.staging.join(""),'*','(');
-          data.formats.push(data.staging.join(''),'×','(');
-          formula_string = balanceParentheses(data.operations);
-          data.result = eval(formula_string.join(""));
-     }else if(data.staging.length === 0 && /(active)/.test(data.resultFormat[data.resultFormat.length - 1])){
-          data.operations.push(data.result,'*','(');
-          data.formats.push('×','(');
-     }else if(data.staging.length === 0 && data.operations[data.operations.length - 1] === ')'){
-          data.operations.push('*','(');
-          data.formats.push('×','(');
-     }else if(data.staging.length === 0 && isNaN(parseFloat(data.operations[data.operations.length - 1]))){
-          data.operations.push('(');
-          data.formats.push('(');
-     }
-     data.staging = [];
-     data.resultFormat = [];
-     operation.value = data.formats.join("");
-     result.value = data.result;
-}
-function parenthesesClose(){
-     let jumlah_open = data.operations.filter(function (item){
-          return item === '(';
-     }).length;
-     let jumlah_close = data.operations.filter(function (item){
-          return item === ')';
-     }).length;
-     let jumlah = jumlah_open - jumlah_close;
-     if(jumlah > 0){
-          if(/(active)/.test(data.resultFormat[data.resultFormat.length - 1])){
-               data.operations.push(data.result,')');
-               data.formats.push(')');
-               let formula_string = balanceParentheses(data.operations);
-               data.result = eval(formula_string.join(""));
-          }else if(data.staging.length !== 0){
-               data.operations.push(data.staging.join(""),')');
-               data.formats.push(data.staging.join(""),')');
-               let formula_string = balanceParentheses(data.operations);
-               data.result = eval(formula_string.join(""));
-          }else if(data.staging.length === 0){
-               data.operations.push(data.result,')');
-               data.formats.push(data.result,')');
-               let formula_string = balanceParentheses(data.operations);
-               data.result = eval(formula_string.join(""));
+          let firstFactorialIndex = factorialIndex - factorialSequence;
+          let previousIndex = firstFactorialIndex - 1;
+          let parenthesisCount = 0;
+          while(previousIndex >= 0){
+               if(formula[previousIndex] == '(') parenthesisCount--;
+               if(formula[previousIndex] == ')') parenthesisCount++;
+               let isOperator = false;
+               OPERATIONS.forEach((operator) => {
+                    if(formula[previousIndex] == operator) isOperator = true;
+               });
+               if(isOperator && parenthesisCount == 0) break;
+               number.unshift(formula[previousIndex]);
+               previousIndex--;
           }
-          data.staging = [];
-          data.resultFormat = [];
-          operation.value = data.formats.join("");
-          result.value = data.result;
-     }
+          let numberString = number.join("");
+          const factorial = 'factorial(';
+          const closeParenthesis = ')';
+          let times = factorialSequence + 1;
+          let toReplace = numberString + FACTORIAL.repeat(times);
+          let replacement = factorial.repeat(times) + numberString + closeParenthesis.repeat(times);
+          factorialNumbers.push({toReplace: toReplace,replacement: replacement,});
+          factorialSequence = 0;
+     });
+     return factorialNumbers;
 }
-button.forEach(buttons => {
-     buttons.addEventListener('click',() => {
-          if(buttons.id === 'calculate') buttons.disabled = true;
-          else document.getElementById('calculate').disabled = false;
+function disableAdvanceKey(){
+     const advanceKeys = document.querySelectorAll('.advance-keys');
+     advanceKeys.forEach((key) => {
+          key.childNodes.forEach((button) => {
+               if(!SCIENTIFIC_MODE){
+                    button.disabled = true;
+               }else{
+                    button.disabled = false;
+               }
+          });
+     });
+     data.formula = [];
+     data.operation = [];
+     updateOutputOperation(data.operation.join(""));
+     updateOutputOperation(0);
+}
+const radian = document.getElementById('radian');
+radian.classList.add('active-angle');
+const degree = document.getElementById('degree');
+function angleToggler(){
+     radian.classList.toggle('active-angle');
+     degree.classList.toggle('active-angle');
+}
+function calculator(button){
+     if(button.type == 'operator'){
+          data.operation.push(button.symbol);
+          data.formula.push(button.formula);
+     }else if(button.type == 'number'){
+          data.operation.push(button.symbol);
+          data.formula.push(button.formula);
+     }else if(button.type == 'trigo_function'){
+          data.operation.push(button.symbol + '(');
+          data.formula.push(button.formula);
+     }else if(button.type == 'math_function'){
+          let symbol;
+          let formula;
+          if(button.name == 'factorial'){
+               symbol = '!';
+               formula = button.formula;
+               data.operation.push(symbol);
+               data.formula.push(formula);
+          }else if(button.name == 'power'){
+               symbol = '^(';
+               formula = button.formula;
+               data.operation.push(symbol);
+               data.formula.push(formula);
+          }else if(button.name == 'square'){
+               showPowerOnUi(data,button.formula,2);
+          }else if(button.name == 'cube'){
+               showPowerOnUi(data,button.formula,3);
+          }else if(button.name == 'quad'){
+               showPowerOnUi(data,button.formula,4);
+          }else if(button.name == 'x-inverse'){
+               showPowerOnUi(data,button.formula,-1);
+          }else{
+               symbol = button.symbol + '(';
+               formula = button.formula + '(';
+               data.operation.push(symbol);
+               data.formula.push(formula);
+          }
+     }else if(button.type == 'key'){
+          if(button.name == 'clear'){
+               data.operation = [];
+               data.formula = [];
+               updateOutputResult(0);
+          }else if(button.name == 'delete'){
+               data.operation.pop();
+               data.formula.pop();
+          }else if(button.name == 'radian'){
+               RADIAN = true;
+               angleToggler();
+          }else if(button.name == 'degree'){
+               RADIAN = false;
+               angleToggler();
+          }
+     }else if(button.type == 'calculate'){
+          let formulaString = data.formula.join("");
+          let powerSearchResult = search(data.formula,POWER);
+          let factorialSearchResult = search(data.formula,FACTORIAL);
+          let bases = powerBaseGetter(data.formula,powerSearchResult);
+          bases.forEach((base) => {
+               let toReplace = base + POWER;
+               let replacement = 'Math.pow(' + base + ',';
+               formulaString = formulaString.replace(toReplace,replacement);
+          });
+          const factorialNumbers = factorialNumberGetter(data.formula,factorialSearchResult);
+          factorialNumbers.forEach((factorial) => {
+               formulaString = formulaString.replace(factorial.toReplace,factorial.replacement);
+          });
+          let result;
+          try {
+               result = eval(formulaString);
+          }catch(error){
+               if(error instanceof SyntaxError){
+                    result = 'Syntax Error';
+                    updateOutputResult(result);
+                    return;
+               }
+          }
+          answer = result;
+          data.operation = [result];
+          data.formula = [result];
+          updateOutputResult(result);
+          return;
+     }
+     updateOutputOperation(data.operation.join(""));
+}
+input.addEventListener('click',(event) => {
+     const targetButton = event.target;
+     calculator_buttons.forEach((button) => {
+          if(button.name == targetButton.id) calculator(button);
      });
 });
-document.getElementById('toggleRadian').addEventListener('click',() => toggleRadianDegree());
-document.getElementById('toggleSecond').addEventListener('click',() => toggleSecondDegree());
-document.getElementById('clear-data').addEventListener('click',() => clearData());
-document.getElementById('parenthesesOpen').addEventListener('click',() => parenthesesOpen());
-document.getElementById('parenthesesClose').addEventListener('click',() => parenthesesClose());
-document.getElementById('percentage').addEventListener('click',() => percentage());
-document.getElementById('calculate').addEventListener('click',() => calculate());
-document.getElementById('trigonometric-sin').addEventListener('click',() => trigonometric('sin'));
-document.getElementById('trigonometric-cos').addEventListener('click',() => trigonometric('cos'));
-document.getElementById('trigonometric-tan').addEventListener('click',() => trigonometric('tan'));
-document.getElementById('constant1').addEventListener('click',() => constant('e'));
-document.getElementById('constant2').addEventListener('click',() => constant('π'));
-document.getElementById('factorial').addEventListener('click',() => math_function('factorial'));
-document.getElementById('ln').addEventListener('click',() => math_function('ln'));
-document.getElementById('log').addEventListener('click',() => math_function('log'));
-document.getElementById('sqrt').addEventListener('click',() => math_function('sqrt'));
+scientific.classList.add('active-calculation');
+scientific.addEventListener('click',() => {
+     SCIENTIFIC_MODE = true;
+     scientific.classList.add('active-calculation');
+     normal.classList.remove('active-calculation');
+     disableAdvanceKey();
+});
+normal.addEventListener('click',() => {
+     SCIENTIFIC_MODE = false;
+     scientific.classList.remove('active-calculation');
+     normal.classList.add('active-calculation');
+     disableAdvanceKey();
+});

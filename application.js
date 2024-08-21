@@ -1,542 +1,261 @@
-const input = document.querySelector('.input');
-const outputOperation = document.querySelector('.operation .value');
-const outputResult = document.querySelector('.result .value');
-const scientific = document.querySelector('.scientific');
-const normal = document.querySelector('.normal');
-const OPERATIONS = ['+','-','*','/'];
-const POWER = 'POWER(';
-const FACTORIAL = 'FACTORIAL(';
-const CUBE = 'CUBE(';
-let SCIENTIFIC_MODE = true;
-let RADIAN = true;
-let answer = 0;
-let data = {operation: [],formula: [],};
-let calculator_buttons = [
-	{
-		name: 'radian',
-		symbol: 'Radian',
-		formula: false,
-		type: 'key',
-	},
-	{
-		name: 'degree',
-		symbol: 'Degree',
-		formula: false,
-		type: 'key',
-	},
-	{
-		name: 'cube',
-		symbol: 'x³',
-		formula: POWER,
-		type: 'math_function',
-	},
-	{
-		name: 'cube-root',
-		symbol: '∛',
-		formula: 'Math.cbrt',
-		type: 'math_function',
-	},
-	{
-		name: 'x-inverse',
-		symbol: 'x⁻¹',
-		formula: POWER,
-		type: 'math_function',
-	},
-	{
-		name: 'quad',
-		symbol: 'x⁴',
-		formula: POWER,
-		type: 'math_function',
-	},
-	{
-		name: 'factorial',
-		symbol: '×!',
-		formula: FACTORIAL,
-		type: 'math_function',
-	},
-	{
-		name: 'square-root',
-		symbol: '√',
-		formula: 'Math.sqrt',
-		type: 'math_function',
-	},
-	{
-		name: 'pi',
-		symbol: 'π',
-		formula: 'Math.PI',
-		type: 'number',
-	},
-	{
-		name: 'cos',
-		symbol: 'cos',
-		formula: 'trigo(Math.cos,',
-		type: 'trigo_function',
-	},
-	{
-		name: 'sin',
-		symbol: 'sin',
-		formula: 'trigo(Math.sin,',
-		type: 'trigo_function',
-	},
-	{
-		name: 'tan',
-		symbol: 'tan',
-		formula: 'trigo(Math.tan,',
-		type: 'trigo_function',
-	},
-	{
-		name: 'square',
-		symbol: 'x²',
-		formula: POWER,
-		type: 'math_function',
-	},
-	{
-		name: 'log',
-		symbol: 'log',
-		formula: 'Math.log10',
-		type: 'math_function',
-	},
-	{
-		name: 'ln',
-		symbol: 'ln',
-		formula: 'Math.log',
-		type: 'math_function',
-	},
-	{
-		name: 'acos',
-		symbol: 'acos',
-		formula: 'inv_trigo(Math.acos,',
-		type: 'trigo_function',
-	},
-	{
-		name: 'asin',
-		symbol: 'asin',
-		formula: 'inv_trigo(Math.asin,',
-		type: 'trigo_function',
-	},
-	{
-		name: 'atan',
-		symbol: 'atan',
-		formula: 'inv_trigo(Math.atan,',
-		type: 'trigo_function',
-	},
-	{
-		name: 'power',
-		symbol: 'x<span>y</span>',
-		formula: POWER,
-		type: 'math_function',
-	},
-	{
-		name: 'e',
-		symbol: 'e',
-		formula: 'Math.E',
-		type: 'number',
-	},
-	{
-		name: 'open-parenthesis',
-		symbol: '(',
-		formula: '(',
-		type: 'number',
-	},
-	{
-		name: 'close-parenthesis',
-		symbol: ')',
-		formula: ')',
-		type: 'number',
-	},
-	{
-		name: 'exp',
-		symbol: 'exp',
-		formula: 'Math.exp',
-		type: 'math_function',
-	},
-	{
-		name: 'ANS',
-		symbol: 'ANS',
-		formula: 'ans',
-		type: 'number',
-	},
-	{
-		name: '7',
-		symbol: 7,
-		formula: 7,
-		type: 'number',
-	},
-	{
-		name: '8',
-		symbol: 8,
-		formula: 8,
-		type: 'number',
-	},
-	{
-		name: '9',
-		symbol: 9,
-		formula: 9,
-		type: 'number',
-	},
-	{
-		name: 'delete',
-		symbol: '⌫',
-		formula: false,
-		type: 'key',
-	},
-	{
-		name: 'clear',
-		symbol: 'C',
-		formula: false,
-		type: 'key',
-	},
-	{
-		name: '4',
-		symbol: 4,
-		formula: 4,
-		type: 'number',
-	},
-	{
-		name: '5',
-		symbol: 5,
-		formula: 5,
-		type: 'number',
-	},
-	{
-		name: '6',
-		symbol: 6,
-		formula: 6,
-		type: 'number',
-	},
-	{
-		name: 'multiplication',
-		symbol: '×',
-		formula: '*',
-		type: 'operator',
-	},
-	{
-		name: 'division',
-		symbol: '÷',
-		formula: '/',
-		type: 'operator',
-	},
-	{
-		name: '1',
-		symbol: 1,
-		formula: 1,
-		type: 'number',
-	},
-	{
-		name: '2',
-		symbol: 2,
-		formula: 2,
-		type: 'number',
-	},
-	{
-		name: '3',
-		symbol: 3,
-		formula: 3,
-		type: 'number',
-	},
-	{
-		name: 'addition',
-		symbol: '+',
-		formula: '+',
-		type: 'operator',
-	},
-	{
-		name: 'subtraction',
-		symbol: '–',
-		formula: '-',
-		type: 'operator',
-	},
-	{
-		name: '0',
-		symbol: 0,
-		formula: 0,
-		type: 'number',
-	},
-	{
-		name: 'comma',
-		symbol: '.',
-		formula: '.',
-		type: 'number',
-	},
-	{
-		name: 'percent',
-		symbol: '%',
-		formula: '/100',
-		type: 'number',
-	},
-	{
-		name: 'calculate',
-		symbol: '=',
-		formula: '=',
-		type: 'calculate',
-	},
-];
-function updateOutputOperation(operation){
-     outputOperation.innerHTML = operation;
+const display = document.getElementById('display');
+const topDisplay = document.getElementById('topDisplay');
+const powerButton = document.getElementById('powerButton');
+const powerMinus1 = document.getElementById('power-1');
+const cubeRootButton = document.getElementById('cubeRootButton');
+const dot = document.getElementById('dot');
+const trigonometricMode = document.getElementById('trigonometric-mode');
+const trigonoToggle = document.getElementById('trigono-toggle');
+const exponential = document.getElementById('exponential');
+const answerButton = document.getElementById('answerButton');
+const squareButton = document.querySelector('#squareButton');
+const sqrtButton = document.querySelector('#sqrtButton');
+const percentButton = document.querySelector('#percentButton');
+const equalButton = document.querySelector('#equalButton');
+const ac = document.querySelector('#ac');
+const deleteButton = document.querySelector('#delete');
+const numberButton = document.querySelectorAll('.numberButton');
+const operationButton = document.querySelectorAll('.operationButton');
+const bracketButton = document.querySelectorAll('.bracketButton');
+const operators = ['+','-','*','/'];
+let calculation = [];
+let showOnScreen = [];
+let trigonoMode = 'degree';
+trigonometricMode.innerText = trigonoMode;
+function calculate(equationArray){
+     return eval(equationArray.join(""));
 }
-function updateOutputResult(result){
-     outputResult.innerHTML = result;
+function updateScreen(){
+     topDisplay.innerText = showOnScreen.join("");
 }
-function search(formula,keyword){
-     let searchResult = [];
-     formula.forEach((item,index) => {
-          if(item == keyword) searchResult.push(index);
-     });
-     return searchResult;
+function clearExponential(){
+     exponential.innerText = "";
+     exponential.parentElement.classList.remove('active');
 }
-function showPowerOnUi(data,formula,powerNumber){
-     data.operation.push('^(');
-     data.formula.push(formula);
-     data.operation.push(powerNumber);
-     data.formula.push(powerNumber);
+function trigonometricModeFunction(){
+     if(trigonoMode == 'radian') trigonoMode = 'degree';
+     else trigonoMode = 'radian';
+     trigonometricMode.innerText = trigonoMode;
 }
-function trigo(callback,angle){
-     if(!RADIAN) angle = (angle * Math.PI) / 100;
-     return callback(angle);
-}
-function inv_trigo(callback,value){
-     if(callback.name != 'atan'){
-          if(value < -1 || value > 1){
-               alert('Please Enter a Number in the Randge Between -1 to 1 of acos');
-               return NaN;
-          }
+trigonometricMode.addEventListener('click',trigonometricModeFunction);
+function trigo(operator,angle){
+     if(trigonoMode == 'degree' && operator.name[0] !== 'a'){
+          angle = angle * Math.PI / 100;
      }
-     let angle = callback(value);
-     if(!RADIAN) angle = (angle * 180) / Math.PI;
-     return angle;
-}
-function gamma(number){
-     var g = 7;
-     var p = [
-          0.99999999999980993,676.5203681218851,-1259.1392167224028,
-		771.32342877765313,-176.61502916214059,12.507343278686905,
-		-0.13857109526572012,9.9843695780195716e-6,1.5056327351493116e-7,
-     ];
-     if(number < 0.5) return Math.PI / Math.sin(number * Math.PI) / gamma(1 - number);
-     else {
-          number--;
-          var x = p[0];
-          for(var i = 1;i < g + 2;i++){
-               x += p[i] / (number + i);
-          }
-          var t = number + g + 0.5;
-          return Math.sqrt(2 * Math.PI) * Math.pow(t,number + 0.5) * Math.exp(-t) * x;
+     let result;
+     if(operator.name == 'sin' && angle == (Math.PI)){
+          result = 0;
+          return result;
+     }else if(operator.name == 'cos' && (angle == (Math.PI / 2) || angle == (3 * Math.PI / 2))){
+          result = 0;
+          return result;
+     }else if(operator.name = 'tan' && angle == (Math.PI / 2)){
+          result = 'Invalid Input';
+          return result;
      }
-}
-function factorial(number){
-     if(number % 1 != 0) return gamma(number + 1);
-     if(number === 0 || number === 1) return 1;
-     let result = 1;
-     for(let i = number;i > 0;i--){
-          result = result * i;
-          if(result === Infinity) return Infinity;
+     result = operator(angle)
+     if(trigonoMode == 'degree' && operator.name[0] === '0'){
+          result = result * 180 / Math.PI;
      }
      return result;
 }
-function createCalculatorButtons(){
-     let buttonPerRow = 6;
-     let addedButtons = 0;
-     calculator_buttons.forEach((button) => {
-          if(button.name == 'ANS'){
-               buttonPerRow = 5;
-               addedButtons++;
-               const lastRow = document.querySelector('.row:last-child');
-               lastRow.style.marginBottom = '16px';
-               const allRow = document.querySelectorAll('.row');
-               allRow.forEach((row) => {
-                    row.classList.add('advance-keys');
-               });
+function autoCloseBracket(){
+     let startParenthesis = 0;
+     let endParenthesis = 0;
+     for(element of calculation){
+          element = element.toString();
+          if(element.indexOf('(') != -1) startParenthesis++;
+          else if(element.indexOf(')') != -1) endParenthesis++;
+     }
+     for(let i = endParenthesis;i < startParenthesis;i++){
+          calculation.push(')');
+     }
+}
+function powerFunction(){
+     if(calculation.includes('power(')){
+          let powerStart;
+          let powerEnd;
+          let powerOf = [];
+          let power = ['('];
+          if(calculation[calculation.indexOf('power(') - 1] == ')'){
+               let bracketCount = 0;
+               for(let i = calculation.indexOf('power(') - 1;i >= 0;i--){
+                    powerStart = i;
+                    if(calculation[i] === '(') bracketCount++;
+                    if(calculation[i] === ')') bracketCount--;
+                    powerOf.unshift(calculation[i]);
+                    if(bracketCount === 0) break;
+               }
+          }else{
+               for(let i = calculation.indexOf('power(') - 1;i >= 0;i--){
+                    if(operators.includes(calculation[i])) break;
+                    powerStart = i;
+                    powerOf.unshift(calculation[i]);
+               }
+          }{
+               let bracketCount = 1;
+               for(let i = calculation.indexOf('power(') + 1;i <calculation.length;i++){
+                    if(calculation[i] == '(') bracketCount++;
+                    if(calculation[i] == ')') bracketCount--;
+                    power.push(calculation[i]);
+                    powerEnd = i;
+                    if(bracketCount == 0) break;
+               }
           }
-          if(addedButtons % buttonPerRow == 0){
-               input.innerHTML += '<div class="row"></div>';
-          }
-          const row = document.querySelector('.row:last-child');
-          row.innerHTML += `<button id="${button.name}">${button.symbol}</button>`;
-          addedButtons++;
+          let powered = Math.pow(calculate(powerOf),calculate(power));
+          calculation.splice(powerStart,powerEnd - powerStart + 1,powered);
+          powerFunction();
+     }
+}
+function acFunction(){
+     calculation = [];
+     showOnScreen = [];
+     display.value = 0;
+     updateScreen();
+     clearExponential();
+}
+window.addEventListener('load',acFunction);
+ac.addEventListener('click',acFunction);
+function numberButtonFunction(event){
+     calculation.push(event.target.innerText);
+     showOnScreen.push(event.target.innerText);
+     updateScreen();
+}
+numberButton.forEach(element => {
+     element.addEventListener('click',numberButtonFunction);
+});
+function removeAnswer(event){
+     calculation = [];
+     showOnScreen = [];
+     updateScreen();
+     numberButton.forEach(element => {
+          element.addEventListener('click',removeAnswer);
+     });
+     numberButtonFunction(event);
+}
+function operationButtonFunction(event){
+     calculation.push(event.target.dataset.buttonSymbol);
+     showOnScreen.push(event.target.innerText);
+     updateScreen();
+     numberButton.forEach(element => {
+          element.removeEventListener('click',removeAnswer);
      });
 }
-createCalculatorButtons();
-function powerBaseGetter(formula,powerIndexes){
-     let powerBases = [];
-     powerIndexes.forEach((powerIndex) => {
-          let base = [];
-          let previousIndex = powerIndex - 1;
-          let parenthesisCount = 0;
-          while(previousIndex >= 0){
-               if(formula[previousIndex] == '(') parenthesisCount--;
-               if(formula[previousIndex] == ')') parenthesisCount++;
-               let isOperator = false;
-               OPERATIONS.forEach((operator) => {
-                    if(formula[previousIndex] == operator) isOperator = true;
-               });
-               let isPower = formula[previousIndex] == POWER;
-               if((isOperator && parenthesisCount == 0) || isPower) break;
-               base.unshift(formula[previousIndex]);
-               previousIndex--;
-          }
-          powerBases.push(base.join(""));
+operationButton.forEach(element => {
+     element.addEventListener('click',operationButtonFunction);
+});
+function bracketFunction(event){
+     let bracketCount = 0;
+     for(let value of calculation.join("")){
+          if(value == '(') bracketCount++;
+          if(value == ')') bracketCount--;
+     }
+     if(isNaN(parseFloat(showOnScreen[showOnScreen.length - 1])) == false && event.target.innerText == '(') calculation.push('*');
+     else if(event.target.innerText == ""){
+          if(bracketCount == 0) return;
+     }
+     calculation.push(event.target.innerText);
+     showOnScreen.push(event.target.innerText);
+     updateScreen();
+     numberButton.forEach(element => {
+          element.removeEventListener('click',removeAnswer);
      });
-     return powerBases;
 }
-function factorialNumberGetter(formula,factorialIndexes){
-     let factorialNumbers = [];
-     let factorialSequence = 0;
-     factorialIndexes.forEach((factorialIndex) => {
-          let number = [];
-          let nextIndex = factorialIndex + 1;
-          let nextInput = formula[nextIndex];
-          if(nextInput == FACTORIAL){
-               factorialSequence++;
+bracketButton.forEach(element => {
+     element.addEventListener('click',bracketFunction);
+});
+function rootFunction(event,root){
+     !operators.includes(calculation.slice(-1)) ? calculation.push(`*${root}`) : calculation.push(root);
+     showOnScreen.push(event.target.dataset.buttonSymbol);
+     updateScreen();
+     numberButton.forEach(element => {{
+          element.removeEventListener('click',removeAnswer);
+     }});
+}
+sqrtButton.addEventListener('click',event => {
+     rootFunction(event,'Math.sqrt(');
+});
+cubeRootButton.addEventListener('click',event => {
+     rootFunction(event,'Math.cbrt(');
+});
+function equalFunction(){
+     clearExponential();
+     autoCloseBracket();
+     powerFunction();
+     let answer;
+     try {
+          answer = calculate(calculation).toString();
+          if(!answer.includes('e') && answer.includes('.') && answer.slice(0,-1).split('.')[1].endsWith('000000')){
+               answer = parseFloat(answer.slice(0,-1)).toString();
+          }
+     }catch(error){
+          if(error instanceof SyntaxError){
+               display.value = 'Syntax Error!';
                return;
           }
-          let firstFactorialIndex = factorialIndex - factorialSequence;
-          let previousIndex = firstFactorialIndex - 1;
-          let parenthesisCount = 0;
-          while(previousIndex >= 0){
-               if(formula[previousIndex] == '(') parenthesisCount--;
-               if(formula[previousIndex] == ')') parenthesisCount++;
-               let isOperator = false;
-               OPERATIONS.forEach((operator) => {
-                    if(formula[previousIndex] == operator) isOperator = true;
-               });
-               if(isOperator && parenthesisCount == 0) break;
-               number.unshift(formula[previousIndex]);
-               previousIndex--;
-          }
-          let numberString = number.join("");
-          const factorial = 'factorial(';
-          const closeParenthesis = ')';
-          let times = factorialSequence + 1;
-          let toReplace = numberString + FACTORIAL.repeat(times);
-          let replacement = factorial.repeat(times) + numberString + closeParenthesis.repeat(times);
-          factorialNumbers.push({toReplace: toReplace,replacement: replacement,});
-          factorialSequence = 0;
-     });
-     return factorialNumbers;
-}
-function disableAdvanceKey(){
-     const advanceKeys = document.querySelectorAll('.advance-keys');
-     advanceKeys.forEach((key) => {
-          key.childNodes.forEach((button) => {
-               if(!SCIENTIFIC_MODE){
-                    button.disabled = true;
-               }else{
-                    button.disabled = false;
-               }
-          });
-     });
-     data.formula = [];
-     data.operation = [];
-     updateOutputOperation(data.operation.join(""));
-     updateOutputOperation(0);
-}
-const radian = document.getElementById('radian');
-radian.classList.add('active-angle');
-const degree = document.getElementById('degree');
-function angleToggler(){
-     radian.classList.toggle('active-angle');
-     degree.classList.toggle('active-angle');
-}
-function calculator(button){
-     if(button.type == 'operator'){
-          data.operation.push(button.symbol);
-          data.formula.push(button.formula);
-     }else if(button.type == 'number'){
-          data.operation.push(button.symbol);
-          data.formula.push(button.formula);
-     }else if(button.type == 'trigo_function'){
-          data.operation.push(button.symbol + '(');
-          data.formula.push(button.formula);
-     }else if(button.type == 'math_function'){
-          let symbol;
-          let formula;
-          if(button.name == 'factorial'){
-               symbol = '!';
-               formula = button.formula;
-               data.operation.push(symbol);
-               data.formula.push(formula);
-          }else if(button.name == 'power'){
-               symbol = '^(';
-               formula = button.formula;
-               data.operation.push(symbol);
-               data.formula.push(formula);
-          }else if(button.name == 'square'){
-               showPowerOnUi(data,button.formula,2);
-          }else if(button.name == 'cube'){
-               showPowerOnUi(data,button.formula,3);
-          }else if(button.name == 'quad'){
-               showPowerOnUi(data,button.formula,4);
-          }else if(button.name == 'x-inverse'){
-               showPowerOnUi(data,button.formula,-1);
-          }else{
-               symbol = button.symbol + '(';
-               formula = button.formula + '(';
-               data.operation.push(symbol);
-               data.formula.push(formula);
-          }
-     }else if(button.type == 'key'){
-          if(button.name == 'clear'){
-               data.operation = [];
-               data.formula = [];
-               updateOutputResult(0);
-          }else if(button.name == 'delete'){
-               data.operation.pop();
-               data.formula.pop();
-          }else if(button.name == 'radian'){
-               RADIAN = true;
-               angleToggler();
-          }else if(button.name == 'degree'){
-               RADIAN = false;
-               angleToggler();
-          }
-     }else if(button.type == 'calculate'){
-          let formulaString = data.formula.join("");
-          let powerSearchResult = search(data.formula,POWER);
-          let factorialSearchResult = search(data.formula,FACTORIAL);
-          let bases = powerBaseGetter(data.formula,powerSearchResult);
-          bases.forEach((base) => {
-               let toReplace = base + POWER;
-               let replacement = 'Math.pow(' + base + ',';
-               formulaString = formulaString.replace(toReplace,replacement);
-          });
-          const factorialNumbers = factorialNumberGetter(data.formula,factorialSearchResult);
-          factorialNumbers.forEach((factorial) => {
-               formulaString = formulaString.replace(factorial.toReplace,factorial.replacement);
-          });
-          let result;
-          try {
-               result = eval(formulaString);
-          }catch(error){
-               if(error instanceof SyntaxError){
-                    result = 'Syntax Error';
-                    updateOutputResult(result);
-                    return;
-               }
-          }
-          answer = result;
-          data.operation = [result];
-          data.formula = [result];
-          updateOutputResult(result);
-          return;
      }
-     updateOutputOperation(data.operation.join(""));
+     calculation = [answer];
+     showOnScreen = [answer];
+     localStorage.setItem('answer',answer);
+     if(answer.indexOf('e') != -1){
+          const newAnswer = answer.split('e');
+          exponential.innerText = newAnswer[1];
+          exponential.parentElement.classList.add('active');
+          answer = newAnswer[0];
+     }
+     display.value = answer;
+     numberButton.forEach(element => {
+          element.addEventListener('click',removeAnswer);
+     });
 }
-input.addEventListener('click',(event) => {
-     const targetButton = event.target;
-     calculator_buttons.forEach((button) => {
-          if(button.name == targetButton.id) calculator(button);
+equalButton.addEventListener('click',equalFunction);
+document.getElementById('visibility-toggler').addEventListener('click',() => {
+     document.querySelectorAll('.toggle-visibility').forEach(element => {
+          element.classList.toggle('visible');
      });
 });
-scientific.classList.add('active-calculation');
-scientific.addEventListener('click',() => {
-     SCIENTIFIC_MODE = true;
-     scientific.classList.add('active-calculation');
-     normal.classList.remove('active-calculation');
-     disableAdvanceKey();
+document.querySelectorAll('.button').forEach(button => {
+     button.addEventListener('click',() => {
+          button.classList.add('click-animation');
+          button.addEventListener('animationend',() => button.classList.remove('click-animation'),{once: true});
+     });
 });
-normal.addEventListener('click',() => {
-     SCIENTIFIC_MODE = false;
-     scientific.classList.remove('active-calculation');
-     normal.classList.add('active-calculation');
-     disableAdvanceKey();
+document.addEventListener('keydown',event => {
+     let targetElement = event.key === 'Enter' ?
+          equalButton : event.key === 'Backspace' ?
+          ac: event.key === 'Delete' ?
+          deleteButton : !isNaN(event.key) ?
+          [...numberButton].find(element => element.innerText === event.key) :
+          [...operationButton].find(element => element.dataset.buttonSymbol === event.key);
+     targetElement && event.preventDefault();
+     targetElement && targetElement.click();
+});
+trigonoToggle.addEventListener('click',() => {
+     document.getElementById('trigonometric-container').classList.toggle('visible');
+});
+deleteButton.addEventListener('click',() => {
+     calculation.pop();
+     showOnScreen.pop();
+     updateScreen();
+});
+answerButton.addEventListener('click',() => {
+     let answer = localStorage.getItem('answer');
+     calculation.push(answer);
+     showOnScreen.push('ANSWER');
+     updateScreen();
+});
+powerButton.addEventListener('click',event => {
+     calculation.push('power(');
+     showOnScreen.push(event.target.dataset.buttonSymbol);
+     updateScreen();
+});
+powerMinus1.addEventListener('click',event => {
+     calculation.push('power(','-1',')');
+     showOnScreen.push('^(','-1',')');
+     updateScreen();
+});
+squareButton.addEventListener('click',event => {
+     calculation.push('power(','2',')');
+     showOnScreen.push('^(','2',')');
+     updateScreen();
 });

@@ -1,266 +1,191 @@
 :root {
-     --body-background-color:rgb(22,22,22);
-     --button-color:#358f4b;
-     --button-hover:#3d3d3d;
-     --maximum-width: 35rem;
-     font-size: 16px;
-}
-@font-face {
-     font-family: 'Charm';
-     font-style: normal;
-     font-weight: 400;
-     font-display: swap;
-     src: url(fonts/charm.woff2) format('woff2');
-     unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
-}
-@font-face {
-     font-family: 'PT Sans';
-     font-style: normal;
-     font-weight: 400;
-     font-display: swap;
-     src: url(fonts/pt-sans.woff2) format('woff2');
-     unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
-}
-@font-face {
-     font-family: 'Tangerine';
-     font-style: normal;
-     font-weight: 400;
-     font-display: swap;
-     src: url(fonts/tangerine.woff2) format('woff2');
-     unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+     --primaryColor:#0067c0;
+     --primaryHoverColor:#0066c0da;
+     --backgroundColor:#f2f2f2;
+     --cardBackgroundColor:#fdfdfd;
+     --cardSecondaryBackgroundColor:#f3f9fbb0;
+     --cardHoverBackgroundColor:#f9f9f99c;
+     --shadowColor:#c3c4c7;
+     --textColor:#000000;
+     --secondaryTextColor:#aaaaaa;
 }
 * {
+     margin: 0px;
+     padding: 0px;
      box-sizing: border-box;
-     font-family: 'PT Sans',serif;
 }
 body {
-     background-color: var(--body-background-color);
-     margin: 0px;
-     position: absolute;
      width: 100%;
-     height: 100%;
-     max-width: 100vw;
-     max-height: 100vh;
-     min-width: 300px;
+     height: 100vh;
+     font-family: Helvetica,sans-serif;
+     background-color:var(--backgroundColor);
 }
-.container {
-     width: 100%;
-     height: 100%;
+.main {
      display: flex;
      flex-direction: column;
-}
-.topBar {
-     display: flex;
-     align-items: center;
-     justify-content: space-between;
-     width: 100%;
-     max-width: var(--maximum-width);
-     margin: auto;
-     padding: 5px 2.5vw;
-}
-.topBar svg {
-     width: 2.5vh;
-     height: 2.5vh;
-     fill:rgb(140,140,140);
-     transition: fill 500ms;
-}
-.topBar svg:hover {
-     fill:rgb(180,180,180);
-}
-.signature {
-     font-family: 'Tangerine',sans-serif;
-     font-size: 2.3vh;
-     font-weight: bold;
-     text-align: center;
-     text-decoration: none;
-     color:rgb(140,140,140);
-     letter-spacing: 2px;
-     margin: 0px;
-}
-.signature:hover {
-     text-decoration: underline;
-}
-.calculator {
-     flex-grow: 1;
-     width: 100%;
-     max-width: var(--maximum-width);
-     display: flex;
-     flex-direction: column;
-     align-items: center;
-     justify-content: space-around;
-     margin: 0px auto;
-     padding: 0px 2.5vw;
-}
-.input-area {
-     background-color: transparent;
-     color:white;
-     position: relative;
-     padding: 0.5rem 0.5rem 1rem;
-     width: 100%;
-}
-#topDisplay-container {
-     position: relative;
-     width: 100%;
-     height: 4.8vh;
-     margin: 1vh 0vh;
-     overflow-x: auto;
-     direction: rtl;
-}
-#topDisplay-container::-webkit-scrollbar {
-     display: none;
-}
-#topDisplay-container {
-     scrollbar-width: none;
-}
-#topDisplay {
-     position: absolute;
-     right: 0%;
-     height: 100%;
-     background-color: transparent;
-     color:#dddddd;
-     font-size: 3.5vh;
-     margin: 0%;
-     direction: initial;
-     cursor: grab;
-}
-#display {
-     background-color: transparent;
-     color:rgb(255,255,255);
-     width: 100%;
-     text-align: right;
-     font-size: 6vh;
-     border: 0%;
-     outline: 0%;
-}
-#exponential-container {
-     position: absolute;
-     right: 10px;
-     margin-top: 5px;
-     color:rgb(73,73,73);
-     font-size: 1.1rem;
-}
-#exponential-container.active {
-     color:whitesmoke;
-}
-.button-container {
-     width: 100%;
-}
-.trigonometry {
-     color:white;
-     font-size: 2.5vh;
-     cursor: pointer;
-     user-select: none;
-     margin: 0.6rem 0.2rem;
-}
-#trigonometric-mode {
-     text-transform: capitalize;
-     margin-right: 0.8rem;
-}
-#trigono-toggle {
-     position: relative;
-     display: inline-block;
-     margin-top: 10px;
-}
-#trigonometric-container {
-     background-color: var(--button-color);
-     position: absolute;
-     top: 150%;
-     z-index: 10;
-     width: max-content;
-     display: grid;
-     grid-template-columns: repeat(3,1fr);
-     box-shadow: 0px 0px 10px rgb(73,73,73);
-     transform: rotateX(90deg);
-     transform-origin: top;
-     transition: transform 300ms;
-}
-#trigonometric-container.visible {
-     display: grid;
-     transform: rotateX(0deg);
-}
-.trigono-operator {
-     text-align: center;
-     padding: 15px;
-}
-.trigono-operator:hover {
-     background-color: var(--button-hover);
-}
-.button-area {
-     width: 100%;
-     background-color: transparent;
-     display: grid;
-     grid-template-columns: repeat(4,1fr);
-     grid-gap: 5px;
-     border-bottom-left-radius: 10px;
-}
-.button {
-     background-color: var(--button-color);
-     color:white;
-     text-align: center;
-     font-size: 2.7vh;
-     align-items: center;
      justify-content: center;
-     cursor: pointer;
-     border-radius: 5px;
+}
+.result-section {
+     display: flex;
+     flex-direction: column;
+     align-items: flex-end;
+     padding: 1rem 1rem;
+}
+.result-section .equation {
+     font-size: 2rem;
+     padding-right: 0.5rem;
+     color:var(--secondaryTextColor);
+}
+.result-section .equation::after {
+     content: '\200b';
+}
+.result-section .output {
+     font-size: 4rem;
+     color:var(--textColor);
+}
+.result-section .output::after {
+     content: '\200b';
+}
+.upper-section {
+     display: flex;
+     flex-direction: column;
      user-select: none;
-     padding: 2vh 0vh 1.8vh;
 }
-.button.click-animation {
-     animation: clickAnimation 150ms linear forwards;
+.upper-section .row1 {
+     display: flex;
+     flex-direction: row;
 }
-@keyframes clickAnimation {
-     30% {
-          transform: scale(0.9);
-          background-color: var(--button-hover);
-     }
-     80% {
-          transform: scale(1.05);
-          background-color: var(--button-color);
-     }
+.upper-section .row1 div {
+     margin: 0.5rem;
+     padding: 0.5rem;
+     font-size: 1rem;
+     cursor: pointer;
 }
-.toggle-visibility {
+.upper-section .row1 .fe-button {
+     padding-bottom: 0.5rem;
+}
+.upper-section .row2 {
+     display: flex;
+     flex-direction: row;
+}
+.upper-section .row2 div {
+     margin: 0rem 1rem;
+     padding: 0.5rem;
+     font-size: 1rem;
+     cursor: pointer;
+}
+.upper-section .row3 {
+     display: flex;
+     flex-direction: row;
+}
+.upper-section .row3 div {
+     font-size: 1rem;
+     cursor: pointer;
+     margin: 0rem 0.4rem;
+}
+.upper-section .row1 div:hover,.upper-section .row2 div:hover {
+     background-color:var(--shadowColor);
+}
+.upper-section .trigonometry-cell {
+     position: relative;
+     display: block;
+}
+.upper-section .trigonometry-cell-button {
+     padding: 0.5rem;
+     display: flex;
+     align-items: center;
+}
+.upper-section .trigonometry-cell-content {
      display: none;
-}
-.toggle-visibility.visible {
-     display: inline-flex;
-}
-.button-pair {
-     display: grid;
-     grid-template-columns: repeat(2,1fr);
-     grid-gap: 5px;
-     background-color: var(--body-background-color) !important;
-     padding: 0px !important;
-}
-.paired-button {
-     background-color: var(--button-color);
-     padding: 2vh 0vh 1.8vh;
-}
-#powerButton,#squareButton,#power-1 {
-     font-family: 'Charm',serif;
-}
-sup {
-     font-size: 0.7rem;
-     position: relative;
-     top: -5px;
+     position: absolute;
      z-index: 1;
+     width: 100%;
+     background-color:var(--backgroundColor);
+     overflow: auto;
+     box-shadow: 1px 1px 1px 1px var(--shadowColor);
 }
-sub {
+.upper-section .trigonometry-cell-content div {
+     text-align: center;
+     margin: 0.5rem 0.2rem;
+     padding: 1rem;
+     font-size: 1rem;
+     font-weight: bold;
+     border-radius: 0.5rem;
+     background-color:var(--cardHoverBackgroundColor);
+     box-shadow: 0.5px 0.5px 0.5px 0.5px var(--shadowColor);
+}
+.upper-section .trigonometry-cell-content div:hover {
+     background-color:var(--shadowColor);
+}
+.upper-section .function-cell {
      position: relative;
-     top: 5px;
+     display: block;
+}
+.upper-section .function-cell-button {
+     padding: 0.5rem;
+     display: flex;
+     align-items: center;
+}
+.upper-section .function-cell-content {
+     display: none;
+     position: absolute;
      z-index: 1;
+     width: 100%;
+     background-color:var(--backgroundColor);
+     overflow: auto;
+     box-shadow: 1px 1px 1px 1px var(--shadowColor);
 }
-@media only screen and (min-width:768px){
-     :root {
-          font-size: 18px;
-     }
+.upper-section .function-cell-content div {
+     text-align: center;
+     margin: 0.5rem 0.2rem;
+     padding: 1rem;
+     font-size: 1rem;
+     font-weight: bold;
+     border-radius: 0.5rem;
+     background-color:var(--cardHoverBackgroundColor);
+     box-shadow: 0.5px 0.5px 0.5px 0.5px var(--shadowColor);
 }
-@media only screen and (min-width:1200px){
-     :root {
-          font-size: 22px;
-     }
+.upper-section .function-cell-content div:hover {
+     background-color:var(--shadowColor);
 }
-@media only screen and (min-width:1500px){
-     :root {
-          font-size: 25px;
-     }
+.upper-section .trigonometry-cell:hover {
+     background-color:var(--shadowColor);
+}
+.upper-section .function-cell:hover {
+     background-color:var(--shadowColor);
+}
+.upper-section .trigonometry-icon {
+     font-size: 1.5rem;
+}
+.upper-section .function-icon {
+     font-size: 1.5rem;
+}
+.lower-section {
+     width: 100%;
+     border-spacing: 0.3rem;
+}
+.lower-section tr td {
+     width: calc(100% / 5);
+     padding: 1rem;
+     background-color:var(--backgroundColor);
+     box-shadow: 1px 1px 5px 0.1px var(--shadowColor);
+     text-align: center;
+     justify-content: center;
+     font-size: 1.5rem;
+     cursor: pointer;
+     user-select: none;
+}
+.lower-section tr td:hover {
+     background-color:var(--shadowColor);
+}
+.lower-section tr .number {
+     font-weight: bolder;
+     background-color:var(--cardBackgroundColor);
+}
+.lower-section tr .equal-button {
+     background-color:var(--primaryColor);
+     color:var(--cardBackgroundColor);
+}
+.lower-section tr .equal-button:hover {
+     background-color:var(--primaryHoverColor);
 }
