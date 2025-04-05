@@ -4,7 +4,7 @@ const conversion = document.querySelectorAll('.conversion');
 const option = document.querySelectorAll('option');
 const currentOperand = document.querySelector('.current-operand');
 const previousOperand = document.querySelector('.previous-operand');
-const ansDisplay = document.querySelector('#answer-display');
+const answerDisplay = document.querySelector('#answer-display');
 const stoDisplay = document.querySelector('#sto-display');
 const check = document.querySelector('#check');
 const toggler = document.querySelector('#toggler');
@@ -13,7 +13,7 @@ const conversionCtr = document.querySelector('#conversion-ctr');
 const button = conversionCtr.querySelector('button');
 const historyCtr = document.querySelector('#history-ctr');
 const history = historyCtr.querySelector('#history');
-const calculator = new Calculator(previousOperand,currentOperand,ansDisplay,stoDisplay,history);
+const calculator = new Calculator(previousOperand,currentOperand,answerDisplay,stoDisplay,history);
 calculator.renderHistory();
 button.addEventListener('click',(event) => {
   event.preventDefault();
@@ -48,7 +48,7 @@ allButtons.forEach((button) => {
       if(target.textContent == '='){
         if(calculator.previousValue != "") calculator.compute();
         calculator.updateDisplay();
-      }else{
+      }else {
         if(target.textContent == 'ac'){
           calculator.clear();
         }else if(target.textContent == 'delete'){
@@ -73,7 +73,7 @@ allButtons.forEach((button) => {
         }else if(target.textContent == 'usehistory'){
           if(history.value == 'empty') return;
           calculator.appendNumber(history.value.split(',').join(""));
-        }else{
+        }else {
           if(calculator.currentValue == ""){
             if(
               target.textContent != '+' &&
@@ -83,7 +83,7 @@ allButtons.forEach((button) => {
               target.textContent != 'xy' &&
               target.textContent != 'y√x'
             ) return;
-          }else{
+          }else {
             calculator.chooseOperation(target.textContent);
             calculator.updateDisplay();
             return;
@@ -95,6 +95,31 @@ allButtons.forEach((button) => {
       }
     }else{
       calculator.appendNumber(target.textContent);
+      calculator.updateDisplay();
+    }
+  });
+  button.addEventListener('keydown',(event) => {
+    event.preventDefault();
+    let target = event.key;
+    if(target >=0 && target <= 9){
+      currentOperand.textContent = target;
+      calculator.appendNumber(currentOperand.textContent);
+      calculator.updateDisplay();
+    }else if(target == '.'){
+      currentOperand.textContent = target;
+      calculator.appendNumber(currentOperand.textContent);
+      calculator.updateDisplay();
+    }else if(target == 'Delete'){
+      currentOperand.textContent = target;
+      calculator.delete();
+      calculator.updateDisplay();
+    }else if(target == '='){
+      currentOperand.textContent = target;
+      calculator.compute();
+      calculator.updateDisplay();
+    }else if(target == '+' || target == '-' || target == '*' || target == '/' || target == '%'){
+      currentOperand.textContent = target;
+      calculator.chooseOperation(currentOperand.textContent);
       calculator.updateDisplay();
     }
   });
