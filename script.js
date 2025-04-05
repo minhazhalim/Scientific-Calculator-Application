@@ -113,6 +113,10 @@ allButtons.forEach((button) => {
       currentOperand.textContent = target;
       calculator.delete();
       calculator.updateDisplay();
+    }else if(target == 'Escape'){
+      currentOperand.textContent = target;
+      calculator.clear();
+      calculator.updateDisplay();
     }else if(target == '='){
       currentOperand.textContent = target;
       calculator.compute();
